@@ -15,7 +15,7 @@ exception RowzException {
   1: string description
 }
 
-service Groups {
+service Rowz {
   i64 create(1: RowInfo info, 2: i32 at) throws(RowzException ex)
   void destroy(1: i64 id, 2: i32 at) throws(RowzException ex)
   RowInfo read(1: i64 id) throws(RowzException ex)

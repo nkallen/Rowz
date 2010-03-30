@@ -3,3 +3,4 @@
   shardRepository        += ("com.twitter.gizzard.ReadOnlyShard"    -> new gizzard.ReadOnlyShardFactory)
   shardRepository        += ("com.twitter.gizzard.BlockedShard"     -> new gizzard.BlockedShardFactory)
 - Make ThrottledLogger, etc. part of Gizzard
+- fromthrift/tothrift

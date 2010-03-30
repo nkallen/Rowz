@@ -1,10 +1,9 @@
 package com.twitter.rowz
 
-import com.twitter.gizzard.nameserver
-import com.twitter.querulous.evaluator.QueryEvaluator
+import com.twitter.gizzard.nameserver.{Forwarding, NameServer}
+import com.twitter.gizzard.shards.ShardException
 
 
-class ForwardingManager(mappingFunction: Long => Long, protected val queryEvaluator: QueryEvaluator)
-  extends nameserver.ForwardingManager[Shard] {
-  
+class ForwardingManager(nameServer: NameServer[Shard]) extends (Long => Shard) {
+  def apply(id: Long) = nameServer.findCurrentForwarding(0, id)
 }

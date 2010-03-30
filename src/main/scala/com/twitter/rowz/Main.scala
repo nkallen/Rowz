@@ -3,17 +3,21 @@ package com.twitter.rowz
 import net.lag.configgy.Configgy
 import net.lag.logging.Logger
 import com.twitter.gizzard.nameserver.NameServer
-import com.twitter.gizzard.scheduler.JobScheduler
-import com.twitter.gizzard.thrift.{TSelectorServer, JobManagerService}
+import com.twitter.gizzard.scheduler.PrioritizingJobScheduler
+import com.twitter.gizzard.thrift.{TSelectorServer, JobManager, JobManagerService, ShardManager, ShardManagerService}
 import com.facebook.thrift.server.{TServer, TThreadPoolServer}
 import com.facebook.thrift.transport.{TServerSocket, TTransportFactory}
-import com.twitter.ostrich.W3CStats
+import com.twitter.ostrich.{W3CStats, Stats}
+import com.twitter.xrayspecs.TimeConversions._
+import com.twitter.gizzard.proxy.LoggingProxy
 
 
 object Main {
   var rowzService: RowzService = null
   var nameServer: NameServer[Shard] = null
-  var scheduler: JobScheduler = null
+  var scheduler: PrioritizingJobScheduler = null
+  var copyManager: CopyManager = null
+
   var rowzServer: TSelectorServer = null
   var jobServer: TSelectorServer = null
   var shardServer: TSelectorServer = null
@@ -33,25 +37,27 @@ object Main {
 
   def main(args: Array[String]) {
     val state = Rowz(config)
-    rowzService = state._0
-    nameServer = state._1
-    scheduler = state._2
+    rowzService = state._1
+    nameServer = state._2
+    scheduler = state._3
+    copyManager = state._4
 
     startThrift()
   }
 
   def startThrift() {
+    val timeout = config("timeout").toInt.milliseconds
     val executor = TSelectorServer.makeThreadPoolExecutor(config)
-    val processor = new rowz.thrift.Rowz.Processor(ExceptionWrappingProxy[rowz.thrift.Rowz.Iface](LoggingProxy[rowz.thrift.Rowz.Iface](Stats, w3c, "Rowz", rowzService)))
-    rowzServer = TSelectorServer("rowz", config("port").toInt, processor, executor, config("timeout").toInt.milliseconds)
+    val processor = new rowz.thrift.Rowz.Processor(LoggingProxy[rowz.thrift.Rowz.Iface](Stats, w3c, "Rowz", rowzService))
+    rowzServer = TSelectorServer("rowz", config("port").toInt, processor, executor, timeout)
 
     val jobService = new JobManagerService(scheduler)
-    val jobProcessor = new JobManager.Processor(ExceptionWrappingProxy[JobManager.Iface](LoggingProxy[JobManager.Iface](Stats, Main.w3c, "RowzJobs", jobService)))
-    jobServer = TSelectorServer("rowz-jobs", config("edges.job_server_port").toInt, jobProcessor, executor, config("timeout").toInt.milliseconds)
+    val jobProcessor = new JobManager.Processor(LoggingProxy[JobManager.Iface](Stats, Main.w3c, "RowzJobs", jobService))
+    jobServer = TSelectorServer("rowz-jobs", config("rowz.job_server_port").toInt, jobProcessor, executor, timeout)
 
-    val shardService = new ShardManagerService(nameServer)
-    val shardProcessor = new ShardManager.Processor(ExceptionWrappingProxy[ShardManager.Iface](LoggingProxy[ShardManager.Iface](Stats, Main.w3c, "RowzShards", shardService)))
-    shardServer = TSelectorServer("edges-shards", config("edges.shard_server_port").toInt, edgesShardProcessor, edgesExecutor, edgesTimeout)
+    val shardService = new ShardManagerService(nameServer, copyManager)
+    val shardProcessor = new ShardManager.Processor(LoggingProxy[ShardManager.Iface](Stats, Main.w3c, "RowzShards", shardService)) // XXX exception wrapping proxy
+    shardServer = TSelectorServer("rowz-shards", config("rowz.shard_server_port").toInt, shardProcessor, executor, timeout)
 
     rowzServer.serve()
     jobServer.serve()
