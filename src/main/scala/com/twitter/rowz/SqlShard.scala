@@ -6,6 +6,7 @@ import com.twitter.gizzard.shards
 import com.twitter.querulous.query.SqlQueryTimeoutException
 import java.sql.SQLException
 import com.twitter.gizzard.proxy.SqlExceptionWrappingProxy
+import com.twitter.xrayspecs.Time
 
 
 class SqlShardFactory(queryEvaluatorFactory: QueryEvaluatorFactory, config: ConfigMap)
@@ -49,4 +50,8 @@ CREATE TABLE IF NOT EXISTS %s (
 
 class SqlShard(private val queryEvaluator: QueryEvaluator, val shardInfo: shards.ShardInfo,
                val weight: Int, val children: Seq[Shard], config: ConfigMap) extends Shard {
+
+  def create(info: RowInfo, at: Time) = ()
+  def destroy(id: Long, at: Time) = ()
+  def read(id: Long) = null
 }
