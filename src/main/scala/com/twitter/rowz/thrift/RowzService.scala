@@ -13,12 +13,12 @@ class RowzService(forwardingManager: ForwardingManager, scheduler: PrioritizingJ
   def create(rowInfo: thrift.RowInfo, at: Int) = {
 /*    val id = makeId()*/
     val id = 1
-    scheduler(0)(new Create(id, rowInfo.fromThrift, Time(at.seconds))) // XXX priority const
+    scheduler(Priority.High.id)(new Create(id, rowInfo.fromThrift, Time(at.seconds)))
     id
   }
 
   def destroy(id: Long, at: Int) {
-    scheduler(1)(new Destroy(id, Time(at.seconds))) // XXX
+    scheduler(Priority.Low.id)(new Destroy(id, Time(at.seconds)))
   }
 
   def read(id: Long) = {

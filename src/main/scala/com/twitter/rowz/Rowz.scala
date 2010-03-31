@@ -12,10 +12,11 @@ import com.twitter.gizzard.shards._
 import com.twitter.gizzard.nameserver.{NameServer, ShardRepository, SqlNameServerStore}
 import com.twitter.gizzard.jobs.{PolymorphicJobParser, BoundJobParser}
 import scala.collection.mutable
+import com.twitter.ostrich.W3CStats
 
 
 object Rowz {
-  def apply(config: Config) = {
+  def apply(config: Config, w3c: W3CStats) = {
     val log = Logger.get
     val databaseFactory = new MemoizingDatabaseFactory(new ApachePoolingDatabaseFactory(
       config("rowz.db.connection_pool.size_min").toInt,
@@ -57,13 +58,13 @@ object Rowz {
 /*    polymorphicJobParser        += ("rowz\\.jobs\\.(Copy|Migrate)".r, copyJobParser)*/
     polymorphicJobParser        += ("rowz\\.jobs\\.(Create|Destroy)".r, rowzJobParser)
     val schedulerMap = new mutable.HashMap[Int, JobScheduler]
-    List((2, "high"), (1, "low")).foreach { case (priority, configName) =>
+    List((Priority.High, "high"), (Priority.Low, "low")).foreach { case (priority, configName) =>
       val queueConfig = config.configMap("edges.queue")
-      val scheduler = JobScheduler(configName, queueConfig, polymorphicJobParser, Main.w3c) // XXX
-      schedulerMap(priority) = scheduler
+      val scheduler = JobScheduler(configName, queueConfig, polymorphicJobParser, w3c)
+      schedulerMap(priority.id) = scheduler
     }
     val prioritizingScheduler = new PrioritizingJobScheduler(schedulerMap)
-    val copyManager = new CopyManager(prioritizingScheduler(1)) // XXX
+    val copyManager = new CopyManager(prioritizingScheduler(Priority.Low.id))
 
     val rowzService                = new RowzService(forwardingManager, prioritizingScheduler)
 

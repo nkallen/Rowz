@@ -36,7 +36,7 @@ object Main {
   ))
 
   def main(args: Array[String]) {
-    val state = Rowz(config)
+    val state = Rowz(config, w3c)
     rowzService = state._1
     nameServer = state._2
     scheduler = state._3
