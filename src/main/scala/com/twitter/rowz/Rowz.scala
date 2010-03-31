@@ -55,12 +55,8 @@ object Rowz {
     val nameServer                 = new NameServer(replicatingNameServerShard, shardRepository, Hash)
     val forwardingManager          = new ForwardingManager(nameServer)
 
-/*    val copyJobParser           = new BoundJobParser((nameServer, scheduler))*/
-    val rowzJobParser           = new BoundJobParser(forwardingManager)
 
     val polymorphicJobParser    = new PolymorphicJobParser
-/*    polymorphicJobParser        += ("rowz\\.jobs\\.(Copy|Migrate)".r, copyJobParser)*/
-    polymorphicJobParser        += ("rowz\\.jobs\\.(Create|Destroy)".r, rowzJobParser)
     val schedulerMap = new mutable.HashMap[Int, JobScheduler]
     List((Priority.High, "high"), (Priority.Low, "low")).foreach { case (priority, configName) =>
       val queueConfig = config.configMap("edges.queue")
@@ -69,6 +65,11 @@ object Rowz {
     }
     val prioritizingScheduler = new PrioritizingJobScheduler(schedulerMap)
     val copyManager = new CopyManager(prioritizingScheduler(Priority.Low.id))
+
+    val copyJobParser           = new BoundJobParser((nameServer, prioritizingScheduler(Priority.Low.id)))
+    val rowzJobParser           = new BoundJobParser(forwardingManager)
+    polymorphicJobParser        += ("rowz\\.jobs\\.(Copy|Migrate)".r, copyJobParser)
+    polymorphicJobParser        += ("rowz\\.jobs\\.(Create|Destroy)".r, rowzJobParser)
 
     val rowzService                = new RowzService(forwardingManager, prioritizingScheduler)
 
