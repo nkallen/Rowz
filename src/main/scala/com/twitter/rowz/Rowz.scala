@@ -35,10 +35,10 @@ object Rowz {
     val shardRepository         = new ShardRepository[Shard]
     shardRepository             += ("com.twitter.rowz.SqlShard"                   -> new SqlShardFactory(queryEvaluatorFactory, config))
     shardRepository             += ("com.twitter.gizzard.shards.ReadOnlyShard"    -> new ReadOnlyShardFactory(new ReadWriteShardAdapter(_)))
-/*    shardRepository             += ("com.twitter.gizzard.shards.BlockedShard"     -> new BlockedShardFactory)
-    shardRepository             += ("com.twitter.gizzard.shards.WriteOnlyShard"   -> new WriteOnlyShardFactory)
-    shardRepository             += ("com.twitter.gizzard.shards.ReplicatingShard" -> new ReplicatingShardFactory(throttledLogger, future))
-*/
+    shardRepository             += ("com.twitter.gizzard.shards.BlockedShard"     -> new BlockedShardFactory(new ReadWriteShardAdapter(_)))
+    shardRepository             += ("com.twitter.gizzard.shards.WriteOnlyShard"   -> new WriteOnlyShardFactory(new ReadWriteShardAdapter(_)))
+    shardRepository             += ("com.twitter.gizzard.shards.ReplicatingShard" -> new ReplicatingShardFactory(new ReadWriteShardAdapter(_), throttledLogger, { (x, y) => }, future))
+
 
     val nameServerShards = config.getList("rowz.nameserver.databases").map { hostname =>
       new nameserver.SqlShard(
