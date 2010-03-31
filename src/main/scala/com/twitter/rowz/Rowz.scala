@@ -9,7 +9,8 @@ import net.lag.logging.{Logger, ThrottledLogger}
 import com.twitter.gizzard.Future
 import com.twitter.gizzard.scheduler.{JobScheduler, PrioritizingJobScheduler}
 import com.twitter.gizzard.shards._
-import com.twitter.gizzard.nameserver.{NameServer, ShardRepository, SqlNameServerStore}
+import com.twitter.gizzard.nameserver
+import com.twitter.gizzard.nameserver.{NameServer, ShardRepository, LoadBalancer}
 import com.twitter.gizzard.jobs.{PolymorphicJobParser, BoundJobParser}
 import scala.collection.mutable
 import com.twitter.ostrich.W3CStats
@@ -39,16 +40,19 @@ object Rowz {
     shardRepository             += ("com.twitter.gizzard.shards.ReplicatingShard" -> new ReplicatingShardFactory(throttledLogger, future))
 */
 
-    val nameServerStores = config.getList("rowz.nameserver.databases").map { hostname =>
-      new SqlNameServerStore(
+    val nameServerShards = config.getList("rowz.nameserver.databases").map { hostname =>
+      new nameserver.SqlShard(
         queryEvaluatorFactory(
           hostname,
           config("rowz.nameserver.name"),
           config("rowz.nameserver.username"),
           config("rowz.nameserver.password")))
     }
-/*    val replicatingNameServerStore = new ReplicatingNameServerStore(nameServerStores, log, future)*/
-    val nameServer                 = new NameServer(nameServerStores.first, shardRepository, Hash)
+
+    val replicatingNameServerShard = new nameserver.ReadWriteShardAdapter(new ReplicatingShard(
+      new ShardInfo("com.twitter.gizzard.shards.ReplicatingShard", "", ""),
+      1, nameServerShards, new LoadBalancer(nameServerShards), throttledLogger, future, { (x, y) => }))
+    val nameServer                 = new NameServer(replicatingNameServerShard, shardRepository, Hash)
     val forwardingManager          = new ForwardingManager(nameServer)
 
 /*    val copyJobParser           = new BoundJobParser((nameServer, scheduler))*/

@@ -28,7 +28,7 @@
     <dependency org="net.lag" name="configgy" rev="1.4" />
     <dependency org="commons-logging" name="commons-logging" rev="1.1" />
     <dependency org="commons-lang" name="commons-lang" rev="2.2" />
-    <dependency org="com.twitter" name="ostrich" rev="1.0" conf="*" /> <!--auto-->
+    <dependency org="com.twitter" name="ostrich" rev="1.1.13" conf="*" /> <!--auto-->
     <dependency org="com.twitter" name="gizzard" rev="1.0" conf="*" /> <!--auto-->
     <dependency org="com.twitter" name="querulous" rev="1.1.4" />
     <dependency org="thrift" name="libthrift" rev="751142" conf="*" /> <!--auto-->

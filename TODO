@@ -1,6 +1,5 @@
 - Move shardRepo config into gizzard:
-  shardRepository        += ("com.twitter.rowz.SqlShard"            -> new SqlShardFactory(queryEvaluatorFactory, config))
-  shardRepository        += ("com.twitter.gizzard.ReadOnlyShard"    -> new gizzard.ReadOnlyShardFactory)
-  shardRepository        += ("com.twitter.gizzard.BlockedShard"     -> new gizzard.BlockedShardFactory)
+  shardRepository        += ("com.state.rowz.SqlShard"            -> new SqlShardFactory(queryEvaluatorFactory, config))
+  shardRepository        += ("com.state.gizzard.ReadOnlyShard"    -> new gizzard.ReadOnlyShardFactory)
+  shardRepository        += ("com.state.gizzard.BlockedShard"     -> new gizzard.BlockedShardFactory)
 - Make ThrottledLogger, etc. part of Gizzard
-- fromthrift/tothrift
