@@ -56,7 +56,7 @@ object Main {
     jobServer = TSelectorServer("rowz-jobs", config("rowz.job_server_port").toInt, jobProcessor, executor, timeout)
 
     val shardService = new ShardManagerService(nameServer, copyManager)
-    val shardProcessor = new ShardManager.Processor(LoggingProxy[ShardManager.Iface](Stats, Main.w3c, "RowzShards", shardService)) // XXX exception wrapping proxy
+    val shardProcessor = new ShardManager.Processor(ExceptionWrappingProxy(LoggingProxy[ShardManager.Iface](Stats, Main.w3c, "RowzShards", shardService)))
     shardServer = TSelectorServer("rowz-shards", config("rowz.shard_server_port").toInt, shardProcessor, executor, timeout)
 
     rowzServer.serve()
