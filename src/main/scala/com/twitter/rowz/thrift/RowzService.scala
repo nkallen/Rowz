@@ -9,10 +9,9 @@ import thrift.conversions.Row._
 import thrift.conversions.RowInfo._
 
 
-class RowzService(forwardingManager: ForwardingManager, scheduler: PrioritizingJobScheduler) extends thrift.Rowz.Iface {
+class RowzService(forwardingManager: ForwardingManager, scheduler: PrioritizingJobScheduler, makeId: () => Long) extends thrift.Rowz.Iface {
   def create(rowInfo: thrift.RowInfo, at: Int) = {
-/*    val id = makeId()*/
-    val id = 1
+    val id = makeId()
     scheduler(Priority.High.id)(new Create(id, rowInfo.fromThrift, Time(at.seconds)))
     id
   }
