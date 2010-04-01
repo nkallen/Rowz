@@ -10,5 +10,7 @@ case class Destroy(row: Row, at: Time) extends UnboundJob[ForwardingManager] {
     Map("id" -> row.id, "name" -> row.name, "createdAt" -> row.createdAt.inSeconds, "at" -> at.inSeconds)
   }
 
-  def apply(forwardingManager: ForwardingManager) = ()
+  def apply(forwardingManager: ForwardingManager) = {
+    forwardingManager(row.id).destroy(row, at)
+  }
 }

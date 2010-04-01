@@ -1,5 +1,6 @@
 package com.twitter.rowz
 
+import java.sql.SQLIntegrityConstraintViolationException
 import com.twitter.querulous.evaluator.{QueryEvaluatorFactory, QueryEvaluator}
 import net.lag.configgy.ConfigMap
 import com.twitter.gizzard.shards
@@ -51,19 +52,30 @@ class SqlShard(private val queryEvaluator: QueryEvaluator, val shardInfo: shards
 
   private val table = shardInfo.tablePrefix + "_rowz"
 
-  def create(id: Long, name: String, at: Time) = {
-    queryEvaluator.execute("INSERT INTO " + table + " (id, name, created_at, updated_at, state) VALUES (?, ?, ?, ?, ?)",
-      id, name, at.inSeconds, at.inSeconds, State.Normal.id)
-  }
-
-  def destroy(row: Row, at: Time) = {
-    queryEvaluator.execute("UPDATE " + table + " SET updated_at = ?, state = ?",
-      at.inSeconds, State.Destroyed.id)
-  }
+  def create(id: Long, name: String, at: Time) = write(id, name, at, State.Normal, at)
+  def destroy(row: Row, at: Time)              = write(row.id, row.name, row.createdAt, State.Destroyed, at)
 
   def read(id: Long) = {
     queryEvaluator.selectOne("SELECT * FROM " + table + " WHERE id = ? AND state = ?", id, State.Normal.id) { row =>
       new Row(row.getLong("id"), row.getString("name"), Time(row.getLong("created_at").seconds))
+    }
+  }
+
+  private def write(id: Long, name: String, createdAt: Time, state: State.Value, at: Time) = {
+    insertOrUpdate {
+      queryEvaluator.execute("INSERT INTO " + table + " (id, name, created_at, updated_at, state) VALUES (?, ?, ?, ?, ?)",
+        id, name, createdAt.inSeconds, at.inSeconds, state.id)
+    } {
+      queryEvaluator.execute("UPDATE " + table + " SET id = ?, name = ?, created_at = ?, updated_at = ?, state = ? WHERE updated_at < ?",
+        id, name, createdAt.inSeconds, at.inSeconds, state.id, at.inSeconds)
+    }
+  }
+
+  private def insertOrUpdate(f: => Unit)(g: => Unit) {
+    try {
+      f
+    } catch {
+      case e: SQLIntegrityConstraintViolationException => g
     }
   }
 }
