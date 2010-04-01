@@ -6,21 +6,20 @@ import jobs.{Create, Destroy}
 import com.twitter.xrayspecs.Time
 import com.twitter.xrayspecs.TimeConversions._
 import thrift.conversions.Row._
-import thrift.conversions.RowInfo._
 
 
 class RowzService(forwardingManager: ForwardingManager, scheduler: PrioritizingJobScheduler, makeId: () => Long) extends thrift.Rowz.Iface {
-  def create(rowInfo: thrift.RowInfo, at: Int) = {
+  def create(name: String, at: Int) = {
     val id = makeId()
-    scheduler(Priority.High.id)(new Create(id, rowInfo.fromThrift, Time(at.seconds)))
+    scheduler(Priority.High.id)(new Create(id, name, Time(at.seconds)))
     id
   }
 
-  def destroy(id: Long, at: Int) {
-    scheduler(Priority.Low.id)(new Destroy(id, Time(at.seconds)))
+  def destroy(row: thrift.Row, at: Int) {
+    scheduler(Priority.Low.id)(new Destroy(row.fromThrift, Time(at.seconds)))
   }
 
   def read(id: Long) = {
-    forwardingManager(id).read(id).toThrift
+    forwardingManager(id).read(id).get.toThrift
   }
 }

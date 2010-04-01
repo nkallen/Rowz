@@ -1,4 +1,6 @@
 package com.twitter.rowz
 
+import com.twitter.xrayspecs.Time
 
-case class Row(id: Long, info: RowInfo)
+
+case class Row(id: Long, name: String, createdAt: Time)

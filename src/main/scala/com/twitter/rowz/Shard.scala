@@ -5,7 +5,7 @@ import com.twitter.xrayspecs.Time
 
 
 trait Shard extends shards.Shard {
-  def create(info: RowInfo, at: Time)
-  def destroy(id: Long, at: Time)
-  def read(id: Long): RowInfo
+  def create(id: Long, name: String, at: Time)
+  def destroy(row: Row, at: Time)
+  def read(id: Long): Option[Row]
 }

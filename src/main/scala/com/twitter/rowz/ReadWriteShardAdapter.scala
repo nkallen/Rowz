@@ -8,7 +8,8 @@ import com.twitter.xrayspecs.Time
 class ReadWriteShardAdapter(shard: ReadWriteShard[Shard])
   extends shards.ReadWriteShardAdapter(shard) with Shard {
 
-  def create(info: RowInfo, at: Time) = shard.writeOperation(_.create(info, at))
-  def destroy(id: Long, at: Time) = shard.writeOperation(_.destroy(id, at))
-  def read(id: Long) = shard.readOperation(_.read(id))
+  def create(id: Long, name: String, at: Time) = shard.writeOperation(_.create(id, name, at))
+  def destroy(row: Row, at: Time)              = shard.writeOperation(_.destroy(row, at))
+
+  def read(id: Long)                           = shard.readOperation(_.read(id))
 }
