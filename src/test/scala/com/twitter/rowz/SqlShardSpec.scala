@@ -3,6 +3,7 @@ package com.twitter.rowz
 import org.specs.Specification
 import org.specs.mock.{ClassMocker, JMocker}
 import com.twitter.xrayspecs.Time
+import com.twitter.xrayspecs.TimeConversions._
 import com.twitter.gizzard.shards.{ShardInfo, Busy}
 
 object SqlShard extends Specification with JMocker with ClassMocker {
@@ -28,7 +29,10 @@ object SqlShard extends Specification with JMocker with ClassMocker {
     }
 
     "create, destroy then read" in {
-      
+      val row = new Row(1, "a row", Time.now)
+      sqlShard.create(row.id, row.name, row.createdAt)
+      sqlShard.destroy(row, row.createdAt + 1.second)
+      sqlShard.read(row.id) mustEqual None
     }
 
     "idempotent" in {

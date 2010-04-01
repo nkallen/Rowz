@@ -56,10 +56,13 @@ class SqlShard(private val queryEvaluator: QueryEvaluator, val shardInfo: shards
       id, name, at.inSeconds, at.inSeconds, State.Normal.id)
   }
 
-  def destroy(row: Row, at: Time) = ()
+  def destroy(row: Row, at: Time) = {
+    queryEvaluator.execute("UPDATE " + table + " SET updated_at = ?, state = ?",
+      at.inSeconds, State.Destroyed.id)
+  }
 
   def read(id: Long) = {
-    queryEvaluator.selectOne("SELECT * FROM " + table + " WHERE id = ?", id) { row =>
+    queryEvaluator.selectOne("SELECT * FROM " + table + " WHERE id = ? AND state = ?", id, State.Normal.id) { row =>
       new Row(row.getLong("id"), row.getString("name"), Time(row.getLong("created_at").seconds))
     }
   }
