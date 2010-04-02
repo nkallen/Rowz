@@ -10,6 +10,6 @@ case class Create(id: Long, name: String, at: Time) extends UnboundJob[Forwardin
   }
 
   def apply(forwardingManager: ForwardingManager) = {
-    forwardingManager(row.id).create(row.id, row.name, at)
+    forwardingManager(id).create(id, name, at)
   }
 }

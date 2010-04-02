@@ -9,6 +9,7 @@ import java.sql.SQLException
 import com.twitter.gizzard.proxy.SqlExceptionWrappingProxy
 import com.twitter.xrayspecs.Time
 import com.twitter.xrayspecs.TimeConversions._
+import Shard.Cursor
 
 
 class SqlShardFactory(queryEvaluatorFactory: QueryEvaluatorFactory, config: ConfigMap)
@@ -52,22 +53,25 @@ class SqlShard(private val queryEvaluator: QueryEvaluator, val shardInfo: shards
 
   private val table = shardInfo.tablePrefix + "_rowz"
 
-  def create(id: Long, name: String, at: Time) = write(id, name, at, State.Normal, at)
-  def destroy(row: Row, at: Time)              = write(row.id, row.name, row.createdAt, State.Destroyed, at)
+  def create(id: Long, name: String, at: Time) = write(new Row(id, name, at, at, State.Normal))
+  def destroy(row: Row, at: Time)              = write(new Row(row.id, row.name, row.createdAt, at, State.Destroyed))
 
   def read(id: Long) = {
     queryEvaluator.selectOne("SELECT * FROM " + table + " WHERE id = ? AND state = ?", id, State.Normal.id) { row =>
-      new Row(row.getLong("id"), row.getString("name"), Time(row.getLong("created_at").seconds))
+      new Row(row.getLong("id"), row.getString("name"), Time(row.getLong("created_at").seconds), Time(row.getLong("updated_at").seconds), State(row.getInt("state")))
     }
   }
 
-  private def write(id: Long, name: String, createdAt: Time, state: State.Value, at: Time) = {
+  def selectAll(cursor: Cursor, count: Int) = null
+
+  def write(row: Row) = {
+    val Row(id, name, createdAt, updatedAt, state) = row
     insertOrUpdate {
       queryEvaluator.execute("INSERT INTO " + table + " (id, name, created_at, updated_at, state) VALUES (?, ?, ?, ?, ?)",
-        id, name, createdAt.inSeconds, at.inSeconds, state.id)
+        id, name, createdAt.inSeconds, updatedAt.inSeconds, state.id)
     } {
       queryEvaluator.execute("UPDATE " + table + " SET id = ?, name = ?, created_at = ?, updated_at = ?, state = ? WHERE updated_at < ?",
-        id, name, createdAt.inSeconds, at.inSeconds, state.id, at.inSeconds)
+        id, name, createdAt.inSeconds, updatedAt.inSeconds, state.id, updatedAt.inSeconds)
     }
   }
 

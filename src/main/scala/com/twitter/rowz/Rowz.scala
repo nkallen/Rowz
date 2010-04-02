@@ -64,7 +64,6 @@ object Rowz {
       schedulerMap(priority.id) = scheduler
     }
     val prioritizingScheduler = new PrioritizingJobScheduler(schedulerMap)
-    val copyManager = new CopyManager(prioritizingScheduler(Priority.Low.id))
 
     val copyJobParser           = new BoundJobParser((nameServer, prioritizingScheduler(Priority.Low.id)))
     val rowzJobParser           = new BoundJobParser(forwardingManager)
@@ -76,6 +75,6 @@ object Rowz {
     nameServer.reload()
     prioritizingScheduler.start()
 
-    (rowzService, nameServer, prioritizingScheduler, copyManager)
+    (rowzService, nameServer, prioritizingScheduler, new jobs.Copy(_, _, Shard.CursorStart))
   }
 }

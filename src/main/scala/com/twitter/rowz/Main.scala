@@ -2,7 +2,7 @@ package com.twitter.rowz
 
 import net.lag.configgy.Configgy
 import net.lag.logging.Logger
-import com.twitter.gizzard.nameserver.NameServer
+import com.twitter.gizzard.nameserver.{NameServer, Copier}
 import com.twitter.gizzard.scheduler.PrioritizingJobScheduler
 import com.twitter.gizzard.thrift.{TSelectorServer, JobManager, JobManagerService, ShardManager, ShardManagerService}
 import com.facebook.thrift.server.{TServer, TThreadPoolServer}
@@ -16,7 +16,7 @@ object Main {
   var rowzService: RowzService = null
   var nameServer: NameServer[Shard] = null
   var scheduler: PrioritizingJobScheduler = null
-  var copyManager: CopyManager = null
+  var copier: Copier[Shard] = null
 
   var rowzServer: TSelectorServer = null
   var jobServer: TSelectorServer = null
@@ -40,7 +40,7 @@ object Main {
     rowzService = state._1
     nameServer = state._2
     scheduler = state._3
-    copyManager = state._4
+    copier = state._4
 
     startThrift()
   }
@@ -55,7 +55,7 @@ object Main {
     val jobProcessor = new JobManager.Processor(LoggingProxy[JobManager.Iface](Stats, Main.w3c, "RowzJobs", jobService))
     jobServer = TSelectorServer("rowz-jobs", config("rowz.job_server_port").toInt, jobProcessor, executor, timeout)
 
-    val shardService = new ShardManagerService(nameServer, copyManager)
+    val shardService = new ShardManagerService(nameServer, copier, scheduler(Priority.Low.id))
     val shardProcessor = new ShardManager.Processor(ExceptionWrappingProxy(LoggingProxy[ShardManager.Iface](Stats, Main.w3c, "RowzShards", shardService)))
     shardServer = TSelectorServer("rowz-shards", config("rowz.shard_server_port").toInt, shardProcessor, executor, timeout)
 
