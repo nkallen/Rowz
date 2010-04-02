@@ -2,7 +2,8 @@ package com.twitter.rowz
 
 import net.lag.configgy.Configgy
 import net.lag.logging.Logger
-import com.twitter.gizzard.nameserver.{NameServer, Copier}
+import com.twitter.gizzard.jobs.CopyFactory
+import com.twitter.gizzard.nameserver.NameServer
 import com.twitter.gizzard.scheduler.PrioritizingJobScheduler
 import com.twitter.gizzard.thrift.{TSelectorServer, JobManager, JobManagerService, ShardManager, ShardManagerService}
 import com.facebook.thrift.server.{TServer, TThreadPoolServer}
@@ -16,7 +17,7 @@ object Main {
   var rowzService: RowzService = null
   var nameServer: NameServer[Shard] = null
   var scheduler: PrioritizingJobScheduler = null
-  var copier: Copier[Shard] = null
+  var copier: CopyFactory[Shard] = null
 
   var rowzServer: TSelectorServer = null
   var jobServer: TSelectorServer = null

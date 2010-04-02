@@ -75,6 +75,6 @@ object Rowz {
     nameServer.reload()
     prioritizingScheduler.start()
 
-    (rowzService, nameServer, prioritizingScheduler, new jobs.Copy(_, _, Shard.CursorStart))
+    (rowzService, nameServer, prioritizingScheduler, jobs.CopyFactory)
   }
 }

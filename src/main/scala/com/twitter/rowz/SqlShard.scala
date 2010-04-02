@@ -64,6 +64,8 @@ class SqlShard(private val queryEvaluator: QueryEvaluator, val shardInfo: shards
 
   def selectAll(cursor: Cursor, count: Int) = null
 
+  def write(rows: Seq[Row]) = rows.foreach(write(_))
+
   def write(row: Row) = {
     val Row(id, name, createdAt, updatedAt, state) = row
     insertOrUpdate {
