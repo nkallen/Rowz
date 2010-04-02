@@ -13,6 +13,7 @@ object CopyFactory extends gizzard.jobs.CopyFactory[Shard] {
 }
 
 class Copy(sourceShardId: Int, destinationShardId: Int, cursor: Cursor) extends gizzard.jobs.Copy[Shard](sourceShardId, destinationShardId, Copy.COUNT) {
+  def serialize = Map("cursor" -> cursor)
   def copyPage(sourceShard: Shard, destinationShard: Shard, count: Int) = {
     val (items, nextCursor) = sourceShard.selectAll(cursor, count)
     destinationShard.write(items)
