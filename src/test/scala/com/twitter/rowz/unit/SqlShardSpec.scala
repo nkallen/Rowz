@@ -1,4 +1,4 @@
-package com.twitter.rowz
+package com.twitter.rowz.unit
 
 import org.specs.Specification
 import org.specs.mock.{ClassMocker, JMocker}

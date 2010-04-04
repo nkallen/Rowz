@@ -1,7 +1,7 @@
 package com.twitter.rowz
 
 import net.lag.configgy.Config
-import com.twitter.gizzard.scheduler.PrioritizingJobScheduler
+import com.twitter.gizzard.scheduler.{PrioritizingJobScheduler, Priority}
 import jobs.{Create, Destroy}
 import com.twitter.xrayspecs.Time
 import com.twitter.xrayspecs.TimeConversions._

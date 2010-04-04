@@ -1,11 +1,12 @@
 package com.twitter.rowz
 
+import com.twitter.gizzard.thrift.{JobManagerService, ShardManagerService}
 import net.lag.configgy.Configgy
 import net.lag.logging.Logger
 import com.twitter.gizzard.jobs.CopyFactory
 import com.twitter.gizzard.nameserver.NameServer
-import com.twitter.gizzard.scheduler.PrioritizingJobScheduler
-import com.twitter.gizzard.thrift.{TSelectorServer, JobManager, JobManagerService, ShardManager, ShardManagerService}
+import com.twitter.gizzard.scheduler.{PrioritizingJobScheduler, Priority}
+import com.twitter.gizzard.thrift.{TSelectorServer, JobManager, ShardManager}
 import com.facebook.thrift.server.{TServer, TThreadPoolServer}
 import com.facebook.thrift.transport.{TServerSocket, TTransportFactory}
 import com.twitter.ostrich.{W3CStats, Stats}
@@ -14,11 +15,7 @@ import com.twitter.gizzard.proxy.LoggingProxy
 
 
 object Main {
-  var rowzService: RowzService = null
-  var nameServer: NameServer[Shard] = null
-  var scheduler: PrioritizingJobScheduler = null
-  var copier: CopyFactory[Shard] = null
-
+  var state: Rowz.State = null
   var rowzServer: TSelectorServer = null
   var jobServer: TSelectorServer = null
   var shardServer: TSelectorServer = null
@@ -37,27 +34,23 @@ object Main {
   ))
 
   def main(args: Array[String]) {
-    val state = Rowz(config, w3c)
-    rowzService = state._1
-    nameServer = state._2
-    scheduler = state._3
-    copier = state._4
-
+    state = Rowz(config, w3c)
+    state.start()
     startThrift()
   }
 
   def startThrift() {
     val timeout = config("timeout").toInt.milliseconds
     val executor = TSelectorServer.makeThreadPoolExecutor(config)
-    val processor = new rowz.thrift.Rowz.Processor(LoggingProxy[rowz.thrift.Rowz.Iface](Stats, w3c, "Rowz", rowzService))
+    val processor = new rowz.thrift.Rowz.Processor(LoggingProxy[rowz.thrift.Rowz.Iface](Stats, w3c, "Rowz", state.rowzService))
     rowzServer = TSelectorServer("rowz", config("port").toInt, processor, executor, timeout)
 
-    val jobService = new JobManagerService(scheduler)
-    val jobProcessor = new JobManager.Processor(LoggingProxy[JobManager.Iface](Stats, Main.w3c, "RowzJobs", jobService))
+    val jobManagerService = new JobManagerService(state.prioritizingScheduler)
+    val jobProcessor = new JobManager.Processor(LoggingProxy[JobManager.Iface](Stats, Main.w3c, "RowzJobs", jobManagerService))
     jobServer = TSelectorServer("rowz-jobs", config("rowz.job_server_port").toInt, jobProcessor, executor, timeout)
 
-    val shardService = new ShardManagerService(nameServer, copier, scheduler(Priority.Low.id))
-    val shardProcessor = new ShardManager.Processor(ExceptionWrappingProxy(LoggingProxy[ShardManager.Iface](Stats, Main.w3c, "RowzShards", shardService)))
+    val shardManagerService = new ShardManagerService(state.nameServer, state.copyFactory, state.prioritizingScheduler(Priority.Medium.id))
+    val shardProcessor = new ShardManager.Processor(ExceptionWrappingProxy(LoggingProxy[ShardManager.Iface](Stats, Main.w3c, "RowzShards", shardManagerService)))
     shardServer = TSelectorServer("rowz-shards", config("rowz.shard_server_port").toInt, shardProcessor, executor, timeout)
 
     rowzServer.serve()
@@ -68,7 +61,7 @@ object Main {
   def shutdown() {
     rowzServer.stop()
     jobServer.stop()
-    scheduler.shutdown()
+    state.shutdown()
 
     System.exit(0)
   }
