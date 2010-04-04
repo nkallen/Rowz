@@ -27,9 +27,8 @@ object RowzSpec extends Specification with Eventually {
     "row create & read" in {
       println("1")
       val id = rowzService.create("row", Time.now.inSeconds)
-      Thread.sleep(5.seconds.inMillis)
       println("2")
-      rowzService.read(id)
+      rowzService.read(id) must eventually(not(throwA[Exception]))
       println("3")
       val row = rowzService.read(id)
       println("4")
@@ -37,7 +36,7 @@ object RowzSpec extends Specification with Eventually {
       println("5")
       rowzService.destroy(row, 1.second.fromNow.inSeconds)
       println("6")
-      rowzService.read(id) must eventually(throwA[thrift.RowzException])
+      rowzService.read(id) must eventually(throwA[Exception])
     }
   }
 }
