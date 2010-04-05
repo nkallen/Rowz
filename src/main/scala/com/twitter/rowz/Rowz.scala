@@ -81,8 +81,8 @@ object Rowz {
 
     val copyJobParser           = new BoundJobParser((nameServer, prioritizingScheduler(Priority.Medium.id)))
     val rowzJobParser           = new BoundJobParser(forwardingManager)
-    polymorphicJobParser        += ("rowz\\.jobs\\.(Copy|Migrate)".r, copyJobParser)
-    polymorphicJobParser        += ("rowz\\.jobs\\.(Create|Destroy)".r, rowzJobParser)
+    polymorphicJobParser        += ("Copy|Migrate".r, copyJobParser)
+    polymorphicJobParser        += ("Create|Destroy".r, rowzJobParser)
 
     val rowzService             = new RowzService(forwardingManager, prioritizingScheduler, new IdGenerator(config("host.id").toInt))
 

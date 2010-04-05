@@ -1,6 +1,6 @@
 package com.twitter.rowz
 
-import java.sql.SQLIntegrityConstraintViolationException
+import java.sql.{SQLIntegrityConstraintViolationException, ResultSet}
 import com.twitter.querulous.evaluator.{QueryEvaluatorFactory, QueryEvaluator}
 import net.lag.configgy.ConfigMap
 import com.twitter.gizzard.shards
@@ -57,12 +57,15 @@ class SqlShard(private val queryEvaluator: QueryEvaluator, val shardInfo: shards
   def destroy(row: Row, at: Time)              = write(new Row(row.id, row.name, row.createdAt, at, State.Destroyed))
 
   def read(id: Long) = {
-    queryEvaluator.selectOne("SELECT * FROM " + table + " WHERE id = ? AND state = ?", id, State.Normal.id) { row =>
-      new Row(row.getLong("id"), row.getString("name"), Time(row.getLong("created_at").seconds), Time(row.getLong("updated_at").seconds), State(row.getInt("state")))
-    }
+    queryEvaluator.selectOne("SELECT * FROM " + table + " WHERE id = ? AND state = ?", id, State.Normal.id)(makeRow(_))
   }
 
-  def selectAll(cursor: Cursor, count: Int) = null
+  def selectAll(cursor: Cursor, count: Int) = {
+    val rows = queryEvaluator.select("SELECT * FROM " + table + " WHERE id > ? ORDER BY id ASC LIMIT " + count + 1, cursor)(makeRow(_))
+    val chomped = rows.take(count)
+    val nextCursor = if (chomped.size < rows.size) Some(chomped.last.id) else None
+    (chomped, nextCursor)
+  }
 
   def write(rows: Seq[Row]) = rows.foreach(write(_))
 
@@ -83,5 +86,9 @@ class SqlShard(private val queryEvaluator: QueryEvaluator, val shardInfo: shards
     } catch {
       case e: SQLIntegrityConstraintViolationException => g
     }
+  }
+
+  private def makeRow(row: ResultSet) = {
+    new Row(row.getLong("id"), row.getString("name"), Time(row.getLong("created_at").seconds), Time(row.getLong("updated_at").seconds), State(row.getInt("state")))
   }
 }

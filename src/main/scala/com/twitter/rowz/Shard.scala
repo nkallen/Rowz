@@ -5,7 +5,7 @@ import com.twitter.xrayspecs.Time
 
 
 object Shard {
-  type Cursor = Int
+  type Cursor = Long
   val CursorStart = -1
 }
 
