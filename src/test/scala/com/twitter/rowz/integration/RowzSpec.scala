@@ -19,23 +19,17 @@ object RowzSpec extends Specification with Eventually {
       state.nameServer.rebuildSchema()
       val shard1 = new ShardInfo("com.twitter.rowz.SqlShard", "shard_1", "localhost")
       val shardId = state.nameServer.createShard(shard1)
-      state.nameServer.setForwarding(new Forwarding(0, 0, shardId))
+      state.nameServer.setForwarding(new Forwarding(0, Math.MIN_LONG, shardId))
       // state.nameServer.createShard(shard2)
       state.start()
     }
 
     "row create & read" in {
-      println("1")
       val id = rowzService.create("row", Time.now.inSeconds)
-      println("2")
       rowzService.read(id) must eventually(not(throwA[Exception]))
-      println("3")
       val row = rowzService.read(id)
-      println("4")
       row.name mustEqual "row"
-      println("5")
       rowzService.destroy(row, 1.second.fromNow.inSeconds)
-      println("6")
       rowzService.read(id) must eventually(throwA[Exception])
     }
   }

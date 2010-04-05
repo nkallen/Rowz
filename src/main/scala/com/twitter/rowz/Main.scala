@@ -21,17 +21,7 @@ object Main {
   var shardServer: TSelectorServer = null
 
   val config = Configgy.config
-  val w3c = new W3CStats(Logger.get("w3c"), Array(
-    "action-timing",
-    "db-timing",
-    "connection-pool-release-timing",
-    "connection-pool-reserve-timing",
-    "kestrel-put-timing",
-    "db-select-count",
-    "db-execute-count",
-    "operation",
-    "arguments"
-  ))
+  val w3c = new W3CStats(Logger.get("w3c"), config.getList("rowz.w3c").toArray)
 
   def main(args: Array[String]) {
     state = Rowz(config, w3c)
