@@ -21,8 +21,7 @@ object Rowz {
     rowzService: RowzService,
     prioritizingScheduler: PrioritizingJobScheduler,
     nameServer: NameServer[Shard],
-    copyFactory: gizzard.jobs.CopyFactory[Shard]
-    ) {
+    copyFactory: gizzard.jobs.CopyFactory[Shard]) {
       def start() = {
         nameServer.reload()
         prioritizingScheduler.start()

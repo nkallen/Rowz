@@ -1,0 +1,32 @@
+INF [20100405-19:24:10.414] w3c: 6 - - - - - - - RowzShards:get_forwardings 
+INF [20100405-19:24:10.439] w3c: 4 - - - - - - - RowzShards:get_shard 4
+INF [20100405-19:24:10.450] w3c: 2 - - - - - - - RowzShards:list_shard_children 4
+INF [20100405-19:26:26.927] w3c: 1 - - - - - - - RowzShards:get_forwardings 
+INF [20100405-19:26:26.929] w3c: 1 - - - - - - - RowzShards:get_shard 4
+INF [20100405-19:26:26.931] w3c: 1 - - - - - - - RowzShards:list_shard_children 4
+INF [20100405-19:28:35.539] w3c: - - - - - - - - RowzShards:get_forwardings 
+INF [20100405-19:28:56.412] w3c: - - - - - - - - RowzShards:rebuild_schema 
+INF [20100405-19:29:08.873] w3c: - - - - - - - - RowzShards:get_forwardings 
+INF [20100405-19:29:10.779] w3c: 41 - - - - - - - RowzShards:rebuild_schema 
+INF [20100405-19:29:12.179] w3c: 1 - - - - - - - RowzShards:get_forwardings 
+INF [20100405-19:30:56.409] w3c: 0 - - - - - - - RowzShards:get_forwardings 
+INF [20100405-19:57:26.099] w3c: 70 - - - - - - - RowzShards:create_shard ShardInfo(class_name:com.twitter.rowz.SqlShard,_table_prefix:data_a0,_hostname:localhost,_source_type:,_destination_type:,_busy:0,_shard_id:0)
+INF [20100405-19:57:26.110] w3c: 9 - - - - - - - RowzShards:create_shard ShardInfo(class_name:com.twitter.rowz.SqlShard,_table_prefix:data_b0,_hostname:localhost,_source_type:,_destination_type:,_busy:0,_shard_id:0)
+INF [20100405-19:57:31.930] w3c: 5 - - - - - - - RowzShards:create_shard ShardInfo(class_name:com.twitter.rowz.SqlShard,_table_prefix:data_a0,_hostname:localhost,_source_type:,_destination_type:,_busy:0,_shard_id:0)
+INF [20100405-19:57:31.934] w3c: 3 - - - - - - - RowzShards:create_shard ShardInfo(class_name:com.twitter.rowz.SqlShard,_table_prefix:data_b0,_hostname:localhost,_source_type:,_destination_type:,_busy:0,_shard_id:0)
+INF [20100405-19:57:31.938] w3c: 2 - - - - - - - RowzShards:create_shard ShardInfo(class_name:com.twitter.gizzard.shards.ReplicatingShard,_table_prefix:replicating_0,_hostname:localhost,_source_type:,_destination_type:,_busy:0,_shard_id:0)
+INF [20100405-19:57:49.580] w3c: 3 - - - - - - - RowzShards:create_shard ShardInfo(class_name:com.twitter.rowz.SqlShard,_table_prefix:data_a0,_hostname:localhost,_source_type:,_destination_type:,_busy:0,_shard_id:0)
+INF [20100405-19:57:49.584] w3c: 3 - - - - - - - RowzShards:create_shard ShardInfo(class_name:com.twitter.rowz.SqlShard,_table_prefix:data_b0,_hostname:localhost,_source_type:,_destination_type:,_busy:0,_shard_id:0)
+INF [20100405-19:57:49.587] w3c: 2 - - - - - - - RowzShards:create_shard ShardInfo(class_name:com.twitter.gizzard.shards.ReplicatingShard,_table_prefix:replicating_0,_hostname:localhost,_source_type:,_destination_type:,_busy:0,_shard_id:0)
+INF [20100405-19:57:52.068] w3c: 6 - - - - - - - RowzShards:create_shard ShardInfo(class_name:com.twitter.rowz.SqlShard,_table_prefix:data_a0,_hostname:localhost,_source_type:,_destination_type:,_busy:0,_shard_id:0)
+INF [20100405-19:57:52.072] w3c: 2 - - - - - - - RowzShards:create_shard ShardInfo(class_name:com.twitter.rowz.SqlShard,_table_prefix:data_b0,_hostname:localhost,_source_type:,_destination_type:,_busy:0,_shard_id:0)
+INF [20100405-19:57:52.075] w3c: 1 - - - - - - - RowzShards:create_shard ShardInfo(class_name:com.twitter.gizzard.shards.ReplicatingShard,_table_prefix:replicating_0,_hostname:localhost,_source_type:,_destination_type:,_busy:0,_shard_id:0)
+INF [20100405-19:58:17.199] w3c: 3 - - - - - - - RowzShards:create_shard ShardInfo(class_name:com.twitter.rowz.SqlShard,_table_prefix:data_a0,_hostname:localhost,_source_type:,_destination_type:,_busy:0,_shard_id:0)
+INF [20100405-19:58:17.208] w3c: 7 - - - - - - - RowzShards:create_shard ShardInfo(class_name:com.twitter.rowz.SqlShard,_table_prefix:data_b0,_hostname:localhost,_source_type:,_destination_type:,_busy:0,_shard_id:0)
+INF [20100405-19:58:17.211] w3c: 1 - - - - - - - RowzShards:create_shard ShardInfo(class_name:com.twitter.gizzard.shards.ReplicatingShard,_table_prefix:replicating_0,_hostname:localhost,_source_type:,_destination_type:,_busy:0,_shard_id:0)
+INF [20100405-19:58:17.232] w3c: 18 - - - - - - - RowzShards:add_child_shard 3,2,1
+INF [20100405-19:58:23.036] w3c: 4 - - - - - - - RowzShards:create_shard ShardInfo(class_name:com.twitter.rowz.SqlShard,_table_prefix:data_a0,_hostname:localhost,_source_type:,_destination_type:,_busy:0,_shard_id:0)
+INF [20100405-19:58:23.043] w3c: 5 - - - - - - - RowzShards:create_shard ShardInfo(class_name:com.twitter.rowz.SqlShard,_table_prefix:data_b0,_hostname:localhost,_source_type:,_destination_type:,_busy:0,_shard_id:0)
+INF [20100405-19:58:23.066] w3c: 21 - - - - - - - RowzShards:create_shard ShardInfo(class_name:com.twitter.gizzard.shards.ReplicatingShard,_table_prefix:replicating_0,_hostname:localhost,_source_type:,_destination_type:,_busy:0,_shard_id:0)
+INF [20100405-19:58:23.077] w3c: 8 - - - - - - - RowzShards:add_child_shard 3,1,1
+INF [20100405-19:58:23.105] w3c: - - - - - - - - RowzShards:add_child_shard 3,2,1
