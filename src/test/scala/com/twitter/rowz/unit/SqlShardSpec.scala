@@ -15,9 +15,9 @@ object SqlShard extends Specification with JMocker with ClassMocker {
     val shardInfo = new ShardInfo("com.twitter.service.flock.edges.SqlShard",
       "table_001", "localhost", "INT UNSIGNED", "INT UNSIGNED", Busy.Normal, 1)
     val sqlShard = shardFactory.instantiate(shardInfo, 1, List[Shard]())
-    val queryEvaluator = queryEvaluatorFactory(shardInfo.hostname, null, config("rowz.db.username"), config("rowz.db.password"))
     val row = new Row(1, "a row", Time.now, Time.now, State.Normal)
     val row2 = new Row(2, "another row", Time.now, Time.now, State.Normal)
+    val queryEvaluator = queryEvaluatorFactory("localhost", null, config("rowz.db.username"), config("rowz.db.password"))
 
     doBefore {
       queryEvaluator.execute("DROP DATABASE IF EXISTS " + config("rowz.db.name"))
