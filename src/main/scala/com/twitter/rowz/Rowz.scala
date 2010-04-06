@@ -1,6 +1,6 @@
 package com.twitter.rowz
 
-import net.lag.configgy.Config
+import net.lag.configgy.ConfigMap
 import com.twitter.querulous.database.{ApachePoolingDatabaseFactory, MemoizingDatabaseFactory, DatabaseFactory}
 import com.twitter.querulous.query.SqlQueryFactory
 import com.twitter.querulous.evaluator.StandardQueryEvaluatorFactory
@@ -31,7 +31,7 @@ object Rowz {
       def shutdown() = prioritizingScheduler.shutdown()
     }
 
-  def apply(config: Config, w3c: W3CStats): State = apply(
+  def apply(config: ConfigMap, w3c: W3CStats): State = apply(
     config, w3c,
     new MemoizingDatabaseFactory(new ApachePoolingDatabaseFactory(
       config("rowz.db.connection_pool.size_min").toInt,
@@ -42,7 +42,7 @@ object Rowz {
       config("rowz.db.connection_pool.min_evictable_idle_msec").toLong.millis))
   )
 
-  def apply(config: Config, w3c: W3CStats, databaseFactory: DatabaseFactory): State = {
+  def apply(config: ConfigMap, w3c: W3CStats, databaseFactory: DatabaseFactory): State = {
     val queryEvaluatorFactory    = new StandardQueryEvaluatorFactory(databaseFactory, new SqlQueryFactory)
 
     val throttledLogger         = new ThrottledLogger[String](Logger(), config("throttled_log.period_msec").toInt, config("throttled_log.rate").toInt)

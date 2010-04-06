@@ -10,6 +10,7 @@
   <import file="${basedir}/ant/bootstrap.xml" />
 
   <property name="install.dir" location="/usr/local/rowz" />
+  <property name="skip.docs" value="true" />
   <target name="install" depends="package">
     <mkdir dir="${install.dir}" />
     <copy todir="${install.dir}">
