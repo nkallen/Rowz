@@ -1,0 +1,10 @@
+To run tests:
+
+mysql> CREATE DATABASE rowz_nameserver;
+
+% ant test -DDB_USERNAME=fixme -DDB_PASSWORD=fixmetoo
+
+To sample the networking service:
+
+% cd src/scripts
+% ./gzr.rb
