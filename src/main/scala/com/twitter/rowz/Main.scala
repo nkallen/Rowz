@@ -31,6 +31,7 @@ object Main {
       state = Rowz(config, w3c)
       state.start()
       startThrift(w3c)
+      println("Running.")
     } catch {
       case _ =>
         println("Exception in initialization!")
