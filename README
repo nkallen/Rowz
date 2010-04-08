@@ -1,8 +1,16 @@
+To build project:
+
+ant dist -DDB_USERNAME=fixme -DDB_PASSWORD=fixmetoo
+
 To run tests:
 
 mysql> CREATE DATABASE rowz_nameserver;
 
 % ant test -DDB_USERNAME=fixme -DDB_PASSWORD=fixmetoo
+
+To run a simple development server:
+
+% ./bin/rowz
 
 To sample the networking service:
 
