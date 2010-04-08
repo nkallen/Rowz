@@ -10,7 +10,6 @@ import com.twitter.gizzard.Future
 import com.twitter.gizzard.scheduler.{JobScheduler, PrioritizingJobScheduler, Priority}
 import com.twitter.gizzard.shards._
 import com.twitter.gizzard.nameserver
-import com.twitter.gizzard.nameserver.{NameServer, ShardRepository, LoadBalancer}
 import com.twitter.gizzard.jobs.{PolymorphicJobParser, BoundJobParser}
 import scala.collection.mutable
 import com.twitter.ostrich.W3CStats
@@ -20,7 +19,7 @@ object Rowz {
   case class State(
     rowzService: RowzService,
     prioritizingScheduler: PrioritizingJobScheduler,
-    nameServer: NameServer[Shard],
+    nameServer: nameserver.NameServer[Shard],
     copyFactory: gizzard.jobs.CopyFactory[Shard]) {
       def start() = {
         nameServer.reload()
@@ -47,12 +46,8 @@ object Rowz {
     val throttledLogger         = new ThrottledLogger[String](Logger(), config("throttled_log.period_msec").toInt, config("throttled_log.rate").toInt)
     val future                  = new Future("ReplicatingFuture", config.configMap("rowz.replication.future"))
 
-    val shardRepository         = new ShardRepository[Shard]
-    shardRepository             += ("com.twitter.rowz.SqlShard"                   -> new SqlShardFactory(queryEvaluatorFactory, config))
-    shardRepository             += ("com.twitter.gizzard.shards.ReadOnlyShard"    -> new ReadOnlyShardFactory(new ReadWriteShardAdapter(_)))
-    shardRepository             += ("com.twitter.gizzard.shards.BlockedShard"     -> new BlockedShardFactory(new ReadWriteShardAdapter(_)))
-    shardRepository             += ("com.twitter.gizzard.shards.WriteOnlyShard"   -> new WriteOnlyShardFactory(new ReadWriteShardAdapter(_)))
-    shardRepository             += ("com.twitter.gizzard.shards.ReplicatingShard" -> new ReplicatingShardFactory(new ReadWriteShardAdapter(_), throttledLogger, { (x, y) => }, future))
+    val shardRepository         = new nameserver.BasicShardRepository[Shard](new ReadWriteShardAdapter(_), throttledLogger, future)
+    shardRepository             += ("com.twitter.rowz.SqlShard" -> new SqlShardFactory(queryEvaluatorFactory, config))
 
     val nameServerShards = config.getList("rowz.nameserver.hostnames").map { hostname =>
       new nameserver.SqlShard(
@@ -65,8 +60,8 @@ object Rowz {
 
     val replicatingNameServerShard = new nameserver.ReadWriteShardAdapter(new ReplicatingShard(
       new ShardInfo("com.twitter.gizzard.shards.ReplicatingShard", "", ""),
-      1, nameServerShards, new LoadBalancer(nameServerShards), throttledLogger, future, { (x, y) => }))
-    val nameServer                 = new NameServer(replicatingNameServerShard, shardRepository, Hash)
+      1, nameServerShards, new nameserver.LoadBalancer(nameServerShards), throttledLogger, future))
+    val nameServer                 = new nameserver.NameServer(replicatingNameServerShard, shardRepository, Hash)
     val forwardingManager          = new ForwardingManager(nameServer)
 
     val polymorphicJobParser    = new PolymorphicJobParser
