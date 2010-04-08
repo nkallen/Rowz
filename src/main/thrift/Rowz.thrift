@@ -14,7 +14,7 @@ exception RowzException {
 }
 
 service Rowz {
-  i64 create(1: string name, 2: i32 at) throws(RowzException ex)
-  void destroy(1: Row row, 2: i32 at) throws(RowzException ex)
-  Row read(1: i64 id) throws(RowzException ex)
+  i64 create(1: string name, 2: i32 at) throws(1: RowzException ex)
+  void destroy(1: Row row, 2: i32 at) throws(1: RowzException ex)
+  Row read(1: i64 id) throws(1: RowzException ex)
 }
