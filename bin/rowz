@@ -1,0 +1,28 @@
+#!/bin/sh
+set -e
+if [ $# -lt 1 ]; then
+  echo
+  echo "This runs a Rowz server in the foreground, suitable for experimentation"
+  echo
+  echo "Usage: $0 MYSQL_USER [MYSQL_PASSWORD]"
+  echo
+  exit 1
+fi
+
+cd `dirname $0`/..
+
+echo | mysql -u "$1" --password="$2" rowz_nameserver 
+if [ $? -eq 1 ]; then
+  echo "Before running, you need to create a mysql database and:"
+  echo "mysql> CREATE DATABASE rowz_nameserver;"
+  exit 1
+fi
+  
+if [ ! -f dist/rowz/rowz-1.0.jar ]; then
+  echo "You need to build rows first.  Try: "
+  echo "ant dist -DDB_USERNAME=fixme -DDB_PASSWORD=fixmetoo"
+  exit 1
+fi
+
+echo "Starting rowz (it's kinda quiet at the moment)"
+java -DDB_USERNAME="$1" -DDB_PASSWORD="$2" -jar dist/rowz/rowz-1.0.jar -f config/development.conf
