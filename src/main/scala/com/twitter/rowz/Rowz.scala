@@ -73,10 +73,14 @@ object Rowz {
     }
     val prioritizingScheduler = new PrioritizingJobScheduler(schedulerMap)
 
-    val copyJobParser           = new BoundJobParser((nameServer, prioritizingScheduler(Priority.Medium.id)))
-    val rowzJobParser           = new BoundJobParser(forwardingManager)
-    polymorphicJobParser        += ("Copy|Migrate".r, copyJobParser)
-    polymorphicJobParser        += ("Create|Destroy".r, rowzJobParser)
+    val copyJobParser           = new BoundJobParser(jobs.CopyParser, (nameServer, prioritizingScheduler(Priority.Medium.id)))
+    val migrateJobParser        = new BoundJobParser(new gizzard.jobs.MigrateParser(jobs.CopyParser), (nameServer, prioritizingScheduler(Priority.Medium.id)))
+    val createJobParser         = new BoundJobParser(jobs.CreateParser, forwardingManager)
+    val destroyJobParser        = new BoundJobParser(jobs.DestroyParser, forwardingManager)
+    polymorphicJobParser        += ("Copy".r, copyJobParser)
+    polymorphicJobParser        += ("Migrate".r, migrateJobParser)
+    polymorphicJobParser        += ("Create".r, createJobParser)
+    polymorphicJobParser        += ("Destroy".r, destroyJobParser)
 
     val rowzService             = new RowzService(forwardingManager, prioritizingScheduler, new IdGenerator(config("host.id").toInt))
 

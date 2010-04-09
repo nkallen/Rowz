@@ -5,18 +5,20 @@ import com.twitter.xrayspecs.TimeConversions._
 import com.twitter.gizzard.jobs.UnboundJob
 
 
-case class Destroy(row: Row, at: Time) extends UnboundJob[ForwardingManager] {
-  def this(attributes: Map[String, AnyVal]) = {
-    this(
+object DestroyParser extends gizzard.jobs.UnboundJobParser[ForwardingManager] {
+  def apply(attributes: Map[String, Any]) = {
+    new Destroy(
       new Row(
-        attributes("id").toLong,
-        attributes("name").toString,
-        Time(attributes("createdAt").toInt.seconds),
-        Time(attributes("updatedAt").toInt.seconds),
-        State(attributes("state").toInt)),
-        Time(attributes("at").toInt.seconds))
+        attributes("id").asInstanceOf[Long],
+        attributes("name").asInstanceOf[String],
+        Time(attributes("createdAt").asInstanceOf[Int].seconds),
+        Time(attributes("updatedAt").asInstanceOf[Int].seconds),
+        State(attributes("state").asInstanceOf[Int])),
+        Time(attributes("at").asInstanceOf[Int].seconds))
   }
+}
 
+case class Destroy(row: Row, at: Time) extends UnboundJob[ForwardingManager] {
   def toMap = {
     Map(
       "id" -> row.id,

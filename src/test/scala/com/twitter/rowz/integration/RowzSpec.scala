@@ -20,6 +20,8 @@ object RowzSpec extends Specification with Eventually {
     val queryEvaluator = queryEvaluatorFactory("localhost", null, config("rowz.db.username"), config("rowz.db.password"))
 
     doBefore {
+      queryEvaluator.execute("DROP DATABASE IF EXISTS " + config("rowz.nameserver.name"))
+      queryEvaluator.execute("CREATE DATABASE " + config("rowz.nameserver.name"))
       state.nameServer.rebuildSchema()
       queryEvaluator.execute("DROP DATABASE IF EXISTS " + config("rowz.db.name"))
 

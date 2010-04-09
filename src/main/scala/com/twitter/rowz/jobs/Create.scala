@@ -5,14 +5,16 @@ import com.twitter.xrayspecs.Time
 import com.twitter.xrayspecs.TimeConversions._
 
 
-case class Create(id: Long, name: String, at: Time) extends UnboundJob[ForwardingManager] {
-  def this(attributes: Map[String, AnyVal]) = {
-    this(
-      attributes("id").toLong,
-      attributes("name").toString,
-      Time(attributes("at").toInt.seconds))
+object CreateParser extends gizzard.jobs.UnboundJobParser[ForwardingManager] {
+  def apply(attributes: Map[String, Any]) = {
+    new Create(
+      attributes("id").asInstanceOf[Long],
+      attributes("name").asInstanceOf[String],
+      Time(attributes("at").asInstanceOf[Int].seconds))
   }
+}
 
+case class Create(id: Long, name: String, at: Time) extends UnboundJob[ForwardingManager] {
   def toMap = {
     Map("id" -> id, "name" -> name, "at" -> at.inSeconds)
   }

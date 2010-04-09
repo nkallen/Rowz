@@ -27,6 +27,8 @@ object ShardManagerSpec extends Specification with Eventually {
     var shardIdB = 0
 
     doBefore {
+      queryEvaluator.execute("DROP DATABASE IF EXISTS " + config("rowz.nameserver.name"))
+      queryEvaluator.execute("CREATE DATABASE " + config("rowz.nameserver.name"))
       state.nameServer.rebuildSchema()
       queryEvaluator.execute("DROP DATABASE IF EXISTS " + config("rowz.db.name"))
 
