@@ -1,12 +1,11 @@
 package com.twitter.rowz.unit
 
-import org.specs.Specification
 import org.specs.mock.{ClassMocker, JMocker}
 import com.twitter.xrayspecs.Time
 import com.twitter.xrayspecs.TimeConversions._
 import com.twitter.gizzard.shards.{ShardInfo, Busy}
 
-object SqlShard extends Specification with JMocker with ClassMocker {
+object SqlShard extends ConfiguredSpecification with JMocker with ClassMocker {
   "SqlShard" should {
     import Database._
     Time.freeze()

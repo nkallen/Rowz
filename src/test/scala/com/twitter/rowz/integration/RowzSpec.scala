@@ -1,16 +1,15 @@
 package com.twitter.rowz.integration
 
 import com.twitter.gizzard.thrift.ShardManagerService
-import org.specs.Specification
 import com.twitter.gizzard.scheduler.Priority
-import com.twitter.xrayspecs.{Time, Eventually}
+import com.twitter.xrayspecs.Time
 import com.twitter.xrayspecs.TimeConversions._
 import net.lag.logging.Logger
 import com.twitter.gizzard.shards.ShardInfo
 import com.twitter.gizzard.nameserver.Forwarding
 
 
-object RowzSpec extends Specification with Eventually {
+object RowzSpec extends ConfiguredSpecification {
   "Rowz" should {
     import Database._
     Time.freeze()
